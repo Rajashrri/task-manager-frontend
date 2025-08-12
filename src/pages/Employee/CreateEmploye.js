@@ -239,7 +239,7 @@ const CreateEmploye = () => {
   isClearable
   placeholder="Choose..."
 />
-{errors.role && (
+{errors.role_id && (
   <span className="text-danger">{errors.role_id}</span>
 )}
 
