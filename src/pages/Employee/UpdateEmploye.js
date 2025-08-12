@@ -103,7 +103,7 @@ const UpdateEmploye = () => {
     const newErrors = {};
     if (!employee.name) newErrors.name = "Name is required";
     if (!employee.email) newErrors.email = "Email is required";
-    if (!employee.role_id) newErrors.role = "Role is required";
+    if (!employee.role_id) newErrors.role_id = "Role is required";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -229,7 +229,7 @@ const UpdateEmploye = () => {
                        placeholder="Choose..."
                      />
                      {errors.role && (
-                       <span className="text-danger">{errors.role}</span>
+                       <span className="text-danger">{errors.role_id}</span>
                      )}
                     </Col>
                   </Row>
