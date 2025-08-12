@@ -20,7 +20,8 @@ const UpdateEmploye = () => {
   const [employee, setEmployee] = useState({
     name: "",
     email: "",
-    role: "",
+    role_id: "",
+  role_name: "",
     emp_id: "",
   });
   const [optionscat, setOptions] = useState([]);
@@ -44,7 +45,8 @@ const UpdateEmploye = () => {
           setEmployee({
             name: packageData.name || "",
             email: packageData.email || "",
-            role: packageData.role || "",
+            role_id: packageData.role_id || "",
+             role_name: packageData.role_name || "",
             emp_id: packageData.emp_id || "",
           });
         } else {
@@ -71,7 +73,7 @@ const UpdateEmploye = () => {
       const res_data = await response.json();
       const options = Array.isArray(res_data.msg)
         ? res_data.msg.map((item) => ({
-           value: item.name?.trim() || item.name, // name as value not id
+             value: item._id, // ✅ Use the role's ID from DB
             label: item.name?.trim() || item.name,
           }))
         : [];
@@ -101,7 +103,7 @@ const UpdateEmploye = () => {
     const newErrors = {};
     if (!employee.name) newErrors.name = "Name is required";
     if (!employee.email) newErrors.email = "Email is required";
-    if (!employee.role) newErrors.role = "Role is required";
+    if (!employee.role_id) newErrors.role = "Role is required";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -109,12 +111,21 @@ const UpdateEmploye = () => {
     }
 
     try {
+
+
+       const requestBody = {
+      name: employee.name,
+      email: employee.email,
+      emp_id: employee.emp_id,
+      role_id: employee.role_id,
+      role_name: employee.role_name, // ✅ send both
+    };
       const response = await fetch(
         `${process.env.REACT_APP_API_BASE_URL}/api/employee/updateemployee/${id}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(employee),
+           body: JSON.stringify(requestBody),
         }
       );
 
@@ -200,26 +211,26 @@ const UpdateEmploye = () => {
                     <Col md="6">
                       <Label>Select Role</Label>
                       <Select
-                        options={optionscat}
-                        name="role"
-                        value={
-                          optionscat.find(
-                            (option) => option.value === employee.role
-                          ) || null
-                        } // FIXED: Match employee.role
-                        onChange={(selectedOption) => {
-                          setEmployee((prev) => ({
-                            ...prev,
-                            role: selectedOption ? selectedOption.value : "",
-                          }));
-                        }}
-                        isClearable
-                        placeholder="Choose..."
-                      />
-
-                      {errors.role && (
-                        <div className="text-danger">{errors.role}</div>
-                      )}
+                       options={optionscat}
+                       name="role_id"
+                       value={
+                         optionscat.find(
+                           (option) => option.value === employee.role_id
+                         ) || null
+                       }
+                       onChange={(selectedOption) => {
+                         setEmployee((prev) => ({
+                           ...prev,
+                           role_id: selectedOption ? selectedOption.value : "",
+                           role_name: selectedOption ? selectedOption.label : "",
+                         }));
+                       }}
+                       isClearable
+                       placeholder="Choose..."
+                     />
+                     {errors.role && (
+                       <span className="text-danger">{errors.role}</span>
+                     )}
                     </Col>
                   </Row>
 

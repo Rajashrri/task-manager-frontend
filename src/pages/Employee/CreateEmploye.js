@@ -23,7 +23,8 @@ const CreateEmploye = () => {
   const [employee, setemployee] = useState({
     name: "",
     email: "",
-    role: "",
+   role_id: "",
+  role_name: "",
     emp_id: "",
   });
   const handleinput = (e) => {
@@ -45,17 +46,16 @@ const CreateEmploye = () => {
     // Check each field and set error messages if missing
     if (!employee.name) newErrors.name = "Name is required";
     if (!employee.email) newErrors.email = "Email is required";
-    if (!employee.role) newErrors.role = "Role is required";
+    if (!employee.role_id) newErrors.role = "Role is required";
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
     } else {
       try {
         const adminid = localStorage.getItem("adminid");
-        const requestBody = {
-          ...employee,
-          role: employee.role, // Ensure category ID is properly set
-          createdBy: adminid, // ✅ added
-        };
+      const requestBody = {
+  ...employee,
+  createdBy: adminid,
+};
 
         const response = await fetch(
           `${process.env.REACT_APP_API_BASE_URL}/api/employee/addemployee`,
@@ -81,7 +81,8 @@ const CreateEmploye = () => {
         setemployee({
           name: "",
           email: "",
-          role: "",
+          role_name: "",
+             role_id: "",
           emp_id: "",
         });
       } catch (error) {
@@ -103,7 +104,7 @@ const CreateEmploye = () => {
       const res_data = await response.json();
       const options = Array.isArray(res_data.msg)
         ? res_data.msg.map((item) => ({
-           value: item.name?.trim() || item.name, // name as value not id
+              value: item._id, // ✅ Use the role's ID from DB
             label: item.name?.trim() || item.name,
           }))
         : [];
@@ -220,29 +221,29 @@ const CreateEmploye = () => {
                       <Col md="6">
                         <div className="mb-3">
                           <Label className="form-label">Select Role</Label>
-                          <Select
-                            options={optionscat}
-                            name="role"
-                            value={
-                              optionscat.find(
-                                (option) => option.value === employee.role
-                              ) || null
-                            } // FIXED: Match employee.role
-                            onChange={(selectedOption) => {
-                              setemployee((prev) => ({
-                                ...prev,
-                                role: selectedOption
-                                  ? selectedOption.value
-                                  : "",
-                              }));
-                            }}
-                            isClearable
-                            placeholder="Choose..."
-                          />
+                        <Select
+  options={optionscat}
+  name="role_id"
+  value={
+    optionscat.find(
+      (option) => option.value === employee.role_id
+    ) || null
+  }
+  onChange={(selectedOption) => {
+    setemployee((prev) => ({
+      ...prev,
+      role_id: selectedOption ? selectedOption.value : "",
+      role_name: selectedOption ? selectedOption.label : "",
+    }));
+  }}
+  isClearable
+  placeholder="Choose..."
+/>
+{errors.role && (
+  <span className="text-danger">{errors.role}</span>
+)}
 
-                          {errors.role && (
-                            <span className="text-danger">{errors.role}</span>
-                          )}
+                          
                         </div>
                       </Col>
                     </Row>
