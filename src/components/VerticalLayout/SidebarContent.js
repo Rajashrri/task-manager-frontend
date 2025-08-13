@@ -24,13 +24,39 @@ class SidebarContent extends Component {
     super(props);
     this.state = {
       pathName: this.props.router.location.pathname,
+    
+        roleName: localStorage.getItem("role_name") || "",
+           privileges: {}, // store backend privileges here
     };
 
   }
 
   componentDidMount() {
     this.initMenu();
+      const storedRoleName = localStorage.getItem("role_name") || "";
+    this.setState({ roleName: storedRoleName });
+    this.getPrivileges(); // fetch privileges when sidebar loads
   }
+ getPrivileges = async () => {
+    try {
+      const roleId = localStorage.getItem("role_id");
+      const roleName = localStorage.getItem("role_name") || "";
+
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/api/privileges/getprivileges/${roleId}`
+      );
+      const result = await response.json();
+
+      if (result.msg && result.msg.length > 0) {
+        this.setState({
+          privileges: result.msg[0],
+          roleName // keep roleName from localStorage
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching privileges:", error);
+    }
+  };
 
   UNSAFE_componentDidUpdate(prevProps) {
     if (prevProps !== this.props) {
@@ -95,6 +121,9 @@ class SidebarContent extends Component {
   };
 
   render() {
+ 
+const { privileges, roleName } = this.state;
+    const isAdmin = roleName && roleName.trim().toLowerCase() === "admin";
     return (
       <React.Fragment>
         <div id="sidebar-menu">
@@ -108,36 +137,52 @@ class SidebarContent extends Component {
                 <span className="ms-1">{this.props.t('Dashboard')}</span>
               </Link>
             </li>
+              { (isAdmin ) && (
             <li>
               <Link to="/role-master" className="waves-effect">
                 <i className="mdi mdi-account-key-outline"></i> 
                 <span className="ms-1">{this.props.t('Role Master')}</span>
               </Link>
             </li>
-            <li>
-              <Link to="/employee-list" className="waves-effect">
-                <i className=" mdi mdi-account-cash-outline"></i> 
-                <span className="ms-1">{this.props.t('Employee')}</span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/client-list" className="waves-effect">
-                <i className="mdi mdi-account-group-outline"></i> 
-                <span className="ms-1">{this.props.t('Client')}</span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/project-list" className="waves-effect">
-                <i className="mdi mdi-book-multiple-outline"></i> 
-                <span className="ms-1">{this.props.t('Project')}</span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/task-list" className="waves-effect">
-                <i className="mdi mdi-clipboard-file-outline"></i> 
-                <span className="ms-1">{this.props.t('Task')}</span>
-              </Link>
-            </li>
+              )}
+             {(isAdmin || privileges.emplist === "1") && (
+          <li>
+            <Link to="/employee-list" className="waves-effect">
+              <i className="mdi mdi-account-cash-outline"></i>
+              <span className="ms-1">Employee</span>
+            </Link>
+          </li>
+        )}
+
+        {/* Client Menu */}
+        {(isAdmin || privileges.clientlist === "1") && (
+          <li>
+            <Link to="/client-list" className="waves-effect">
+              <i className="mdi mdi-account-group-outline"></i>
+              <span className="ms-1">Client</span>
+            </Link>
+          </li>
+        )}
+
+        {/* Project Menu */}
+        {(isAdmin || privileges.projectlist === "1") && (
+          <li>
+            <Link to="/project-list" className="waves-effect">
+              <i className="mdi mdi-book-multiple-outline"></i>
+              <span className="ms-1">Project</span>
+            </Link>
+          </li>
+        )}
+
+        {/* Task Menu */}
+        {(isAdmin || privileges.tasklist === "1") && (
+          <li>
+            <Link to="/task-list" className="waves-effect">
+              <i className="mdi mdi-clipboard-file-outline"></i>
+              <span className="ms-1">Task</span>
+            </Link>
+          </li>
+        )}
             <li>
               <Link to="/task-view" className="waves-effect">
                 <i className="ri-dashboard-line"></i> 
