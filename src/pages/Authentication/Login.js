@@ -43,7 +43,7 @@ const LoginForm = () => {
         localStorage.setItem("email", res_data.user.email);
         localStorage.setItem("role_id", res_data.user.role_id);
         console.log("res_data", res_data.user.id);
-        console.log("res_data", res_data.user.role_id);
+        console.log("role_id", res_data.user.role_id);
         localStorage.setItem("otpemail", JSON.stringify(res_data.email));
         toast.success("Email and Password Verified Successfully");
 
