@@ -399,7 +399,6 @@ const EmployeeList = () => {
         accessor: "status",
         Cell: ({ row }) => {
           const isActive = row.original.status == 1;
-
           return (
             <div className="form-check form-switch">
               <input
