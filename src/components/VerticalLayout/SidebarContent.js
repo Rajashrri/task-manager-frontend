@@ -183,13 +183,15 @@ const { privileges, roleName } = this.state;
             </Link>
           </li>
         )}
+
+         {(isAdmin || privileges.taskview === "1") && (
             <li>
               <Link to="/task-view" className="waves-effect">
                 <i className="ri-dashboard-line"></i> 
                 <span className="ms-1">{this.props.t('Task View')}</span>
               </Link>
             </li>
-
+    )}
             {/* <li>
               <Link to="/calendar" className=" waves-effect">
                 <i className="ri-calendar-2-line"></i>

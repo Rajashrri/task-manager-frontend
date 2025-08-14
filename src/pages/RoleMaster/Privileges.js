@@ -55,7 +55,6 @@ function GlobalFilter({
           }}
         />
       </Col>
-      
     </>
   );
 }
@@ -298,17 +297,14 @@ const Privileges = () => {
       projectName: "Task View",
       projectstatus: "Active",
 
-      add: "Active",
-      edit: "Inactive",
-      delete: "Active",
+      // add: "Active",
+      // edit: "Inactive",
+      // delete: "Active",
       list: "Inactive",
     },
   ]);
 
   const { id } = useParams(); // 👈 make sure route has :id
-
-
-
 
   const [masterChecked, setMasterChecked] = useState(false);
 
@@ -327,39 +323,40 @@ const Privileges = () => {
       )
     );
   };
-const handleMasterCheckboxToggle = () => {
-  const newStatus = !masterChecked;
-  setMasterChecked(newStatus);
+  const handleMasterCheckboxToggle = () => {
+    const newStatus = !masterChecked;
+    setMasterChecked(newStatus);
 
-  const updatedData = projectData.map((item) => ({
-    ...item,
-    projectstatus: newStatus ? "Active" : "Inactive",
-    add: newStatus ? "Active" : "Inactive",
-    edit: newStatus ? "Active" : "Inactive",
-    delete: newStatus ? "Active" : "Inactive",
-    list: newStatus ? "Active" : "Inactive",
-  }));
+    const updatedData = projectData.map((item) => ({
+      ...item,
+      projectstatus: newStatus ? "Active" : "Inactive",
+      add: newStatus ? "Active" : "Inactive",
+      edit: newStatus ? "Active" : "Inactive",
+      delete: newStatus ? "Active" : "Inactive",
+      list: newStatus ? "Active" : "Inactive",
+      view: newStatus ? "Active" : "Inactive", // <-- Added
+    }));
 
-  setprojectData(updatedData);
-};
+    setprojectData(updatedData);
+  };
 
-
- const handleCheckboxToggle = (id) => {
-  const updatedData = projectData.map((item) =>
-    item.id === id
-      ? {
-          ...item,
-          projectstatus: item.projectstatus === "Active" ? "Inactive" : "Active",
-          add: item.projectstatus === "Active" ? "Inactive" : "Active",
-          edit: item.projectstatus === "Active" ? "Inactive" : "Active",
-          delete: item.projectstatus === "Active" ? "Inactive" : "Active",
-          list: item.projectstatus === "Active" ? "Inactive" : "Active",
-        }
-      : item
-  );
-  setprojectData(updatedData);
-};
-
+  const handleCheckboxToggle = (id) => {
+    const updatedData = projectData.map((item) =>
+      item.id === id
+        ? {
+            ...item,
+            projectstatus:
+              item.projectstatus === "Active" ? "Inactive" : "Active",
+            add: item.projectstatus === "Active" ? "Inactive" : "Active",
+            edit: item.projectstatus === "Active" ? "Inactive" : "Active",
+            delete: item.projectstatus === "Active" ? "Inactive" : "Active",
+            list: item.projectstatus === "Active" ? "Inactive" : "Active",
+            view: item.projectstatus === "Active" ? "Inactive" : "Active", // <-- Added
+          }
+        : item
+    );
+    setprojectData(updatedData);
+  };
 
   const [pri, setPri] = useState({
     empadd: "",
@@ -378,107 +375,108 @@ const handleMasterCheckboxToggle = () => {
     taskupdate: "",
     taskdelete: "",
     tasklist: "",
+    taskview: "", // <-- Added
   });
 
   useEffect(() => {
-  fetchPrivileges();
-}, [id]);
+    fetchPrivileges();
+  }, [id]);
 
-useEffect(() => {
-  const allChecked =
-    projectData.length > 0 &&
-    projectData.every((item) =>
-      ["projectstatus", "add", "edit", "delete", "list"].every(
-        (key) => item[key]?.toString().trim().toLowerCase() === "active"
-      )
-    );
+  useEffect(() => {
+    const allChecked =
+      projectData.length > 0 &&
+      projectData.every((item) =>
+        ["projectstatus", "add", "edit", "delete", "list"].every(
+          (key) => item[key]?.toString().trim().toLowerCase() === "active"
+        )
+      );
 
-  setMasterChecked(allChecked);
-}, [projectData]);
+    setMasterChecked(allChecked);
+  }, [projectData]);
 
+  // Use like this:
+  const fetchPrivileges = async () => {
+    if (!id) return;
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/api/privileges/getPriByid/${id}`
+      );
+      const res_data = await response.json();
+      if (response.ok) {
+        const packageData = res_data.msg?.[0] || {};
+        setPri(packageData);
 
-// Use like this:
- const fetchPrivileges = async () => {
-  if (!id) return;
-  try {
-    const response = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/api/privileges/getPriByid/${id}`
-    );
-    const res_data = await response.json();
-    if (response.ok) {
-      const packageData = res_data.msg?.[0] || {};
-      setPri(packageData);
+        const updatedData = [
+          {
+            id: 1,
+            projectName: "Employee",
+            projectstatus:
+              packageData.empadd === "1" ||
+              packageData.empupdate === "1" ||
+              packageData.empdelete === "1" ||
+              packageData.emplist === "1"
+                ? "Active"
+                : "Inactive",
+            add: packageData.empadd === "1" ? "Active" : "Inactive",
+            edit: packageData.empupdate === "1" ? "Active" : "Inactive",
+            delete: packageData.empdelete === "1" ? "Active" : "Inactive",
+            list: packageData.emplist === "1" ? "Active" : "Inactive",
+          },
+          {
+            id: 2,
+            projectName: "Client",
+            projectstatus:
+              packageData.clientadd === "1" ||
+              packageData.clientupdate === "1" ||
+              packageData.clientdelete === "1" ||
+              packageData.clientlist === "1"
+                ? "Active"
+                : "Inactive",
+            add: packageData.clientadd === "1" ? "Active" : "Inactive",
+            edit: packageData.clientupdate === "1" ? "Active" : "Inactive",
+            delete: packageData.clientdelete === "1" ? "Active" : "Inactive",
+            list: packageData.clientlist === "1" ? "Active" : "Inactive",
+          },
+          {
+            id: 3,
+            projectName: "Project",
+            projectstatus:
+              packageData.projectadd === "1" ||
+              packageData.projectupdate === "1" ||
+              packageData.projectdelete === "1" ||
+              packageData.projectlist === "1"
+                ? "Active"
+                : "Inactive",
+            add: packageData.projectadd === "1" ? "Active" : "Inactive",
+            edit: packageData.projectupdate === "1" ? "Active" : "Inactive",
+            delete: packageData.projectdelete === "1" ? "Active" : "Inactive",
+            list: packageData.projectlist === "1" ? "Active" : "Inactive",
+          },
+          {
+            id: 4,
+            projectName: "Task",
+            projectstatus:
+              packageData.taskadd === "1" ||
+              packageData.taskupdate === "1" ||
+              packageData.taskdelete === "1" ||
+              packageData.tasklist === "1" ||
+              packageData.taskview === "1" // <-- Include taskview in status
+                ? "Active"
+                : "Inactive",
+            add: packageData.taskadd === "1" ? "Active" : "Inactive",
+            edit: packageData.taskupdate === "1" ? "Active" : "Inactive",
+            delete: packageData.taskdelete === "1" ? "Active" : "Inactive",
+            list: packageData.tasklist === "1" ? "Active" : "Inactive",
+            view: packageData.taskview === "1" ? "Active" : "Inactive", // <-- New field
+          },
+        ];
 
-      const updatedData = [
-        {
-          id: 1,
-          projectName: "Employee",
-          projectstatus:
-            packageData.empadd === "1" ||
-            packageData.empupdate === "1" ||
-            packageData.empdelete === "1" ||
-            packageData.emplist === "1"
-              ? "Active"
-              : "Inactive",
-          add: packageData.empadd === "1" ? "Active" : "Inactive",
-          edit: packageData.empupdate === "1" ? "Active" : "Inactive",
-          delete: packageData.empdelete === "1" ? "Active" : "Inactive",
-          list: packageData.emplist === "1" ? "Active" : "Inactive",
-        },
-        {
-          id: 2,
-          projectName: "Client",
-          projectstatus:
-            packageData.clientadd === "1" ||
-            packageData.clientupdate === "1" ||
-            packageData.clientdelete === "1" ||
-            packageData.clientlist === "1"
-              ? "Active"
-              : "Inactive",
-          add: packageData.clientadd === "1" ? "Active" : "Inactive",
-          edit: packageData.clientupdate === "1" ? "Active" : "Inactive",
-          delete: packageData.clientdelete === "1" ? "Active" : "Inactive",
-          list: packageData.clientlist === "1" ? "Active" : "Inactive",
-        },
-        {
-          id: 3,
-          projectName: "Project",
-          projectstatus:
-            packageData.projectadd === "1" ||
-            packageData.projectupdate === "1" ||
-            packageData.projectdelete === "1" ||
-            packageData.projectlist === "1"
-              ? "Active"
-              : "Inactive",
-          add: packageData.projectadd === "1" ? "Active" : "Inactive",
-          edit: packageData.projectupdate === "1" ? "Active" : "Inactive",
-          delete: packageData.projectdelete === "1" ? "Active" : "Inactive",
-          list: packageData.projectlist === "1" ? "Active" : "Inactive",
-        },
-        {
-          id: 4,
-          projectName: "Task",
-          projectstatus:
-            packageData.taskadd === "1" ||
-            packageData.taskupdate === "1" ||
-            packageData.taskdelete === "1" ||
-            packageData.tasklist === "1"
-              ? "Active"
-              : "Inactive",
-          add: packageData.taskadd === "1" ? "Active" : "Inactive",
-          edit: packageData.taskupdate === "1" ? "Active" : "Inactive",
-          delete: packageData.taskdelete === "1" ? "Active" : "Inactive",
-          list: packageData.tasklist === "1" ? "Active" : "Inactive",
-        },
-      ];
-
-      setprojectData(updatedData);
+        setprojectData(updatedData);
+      }
+    } catch (error) {
+      console.error("Fetch error:", error);
     }
-  } catch (error) {
-    console.error("Fetch error:", error);
-  }
-};
-
+  };
 
   const columns = useMemo(
     () => [
@@ -495,7 +493,7 @@ useEffect(() => {
               type="checkbox"
               className="form-check-input"
               id="master-project-checkbox"
-               checked={masterChecked} // ✅ depends on state
+              checked={masterChecked} // ✅ depends on state
               onChange={handleMasterCheckboxToggle}
             />
             <Label
@@ -517,13 +515,12 @@ useEffect(() => {
                   className="form-check-input"
                   type="checkbox"
                   id={`project-check-${id}`}
-               checked={
-  row.original.add === "Active" &&
-  row.original.edit === "Active" &&
-  row.original.delete === "Active" &&
-  row.original.list === "Active"
-}
-
+                  checked={
+                    row.original.add === "Active" &&
+                    row.original.edit === "Active" &&
+                    row.original.delete === "Active" &&
+                    row.original.list === "Active"
+                  }
                   onChange={() => handleCheckboxToggle(id)}
                 />
                 <Label
@@ -633,46 +630,79 @@ useEffect(() => {
           );
         },
       },
+
+      {
+        Header: "View",
+        accessor: "view",
+        Cell: ({ row }) => {
+          // Only show for Task row
+          if (row.original.projectName !== "Task") {
+            return null; // empty cell for non-task rows
+          }
+
+          const isActive = row.original.view === "Active";
+          return (
+            <div className="form-check form-switch">
+              <input
+                type="checkbox"
+                className="form-check-input"
+                id={`switch-${row.original.id}-view`}
+                checked={isActive}
+                onChange={() => handleToggle(row.original.id, "view")}
+              />
+              <label
+                className="form-check-label"
+                htmlFor={`switch-${row.original.id}-view`}
+              >
+                {isActive ? "Active" : "Inactive"}
+              </label>
+            </div>
+          );
+        },
+      },
     ],
     [projectData]
   );
-const updatePrivileges = async () => {
-  if (!id) {
-    console.error("Role ID is missing");
-    return;
-  }
-
-  if (!projectData || projectData.length === 0) {
-    console.error("No privileges to update");
-    return;
-  }
-
-  try {
-    console.log("Updating privileges for role:", id);
-    console.log("Payload:", projectData);
-
-    const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/privileges/setprivileges/${id}`, {
-     method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(projectData),
-    });
-
-    if (response.ok) {
-      const result = await response.json();
-        toast.success("updated Successfully");
-      console.log("Updated successfully:", result);
-            fetchPrivileges(); // <--- call this here to reload updated privileges
-
-      // Add success toast here
-    } else {
-      console.error("Failed to update privileges:", response.status);
+  const updatePrivileges = async () => {
+    if (!id) {
+      console.error("Role ID is missing");
+      return;
     }
-  } catch (error) {
-    console.error("Error updating privileges:", error);
-  }
-};
+
+    if (!projectData || projectData.length === 0) {
+      console.error("No privileges to update");
+      return;
+    }
+
+    try {
+      console.log("Updating privileges for role:", id);
+      console.log("Payload:", projectData);
+
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/api/privileges/setprivileges/${id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(projectData),
+        }
+      );
+
+      if (response.ok) {
+        const result = await response.json();
+        toast.success("updated Successfully");
+        console.log("Updated successfully:", result);
+        fetchPrivileges(); // <--- call this here to reload updated privileges
+
+        // Add success toast here
+      } else {
+        console.error("Failed to update privileges:", response.status);
+      }
+    } catch (error) {
+      console.error("Error updating privileges:", error);
+    }
+  };
 
   const breadcrumbItems = [
     { title: "Dashboard", link: "/" },
@@ -694,12 +724,16 @@ const updatePrivileges = async () => {
                 setModalOpen={setModalOpen}
               />
               <Col md={6}>
-        <div className="d-flex justify-content-end">
-          <Button color="primary" onClick={updatePrivileges} className="mt-">
-            Update
-          </Button>
-        </div>
-      </Col>
+                <div className="d-flex justify-content-end">
+                  <Button
+                    color="primary"
+                    onClick={updatePrivileges}
+                    className="mt-"
+                  >
+                    Update
+                  </Button>
+                </div>
+              </Col>
             </CardBody>
           </Card>
         </Container>

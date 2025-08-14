@@ -391,8 +391,8 @@ const EmployeeList = () => {
       { Header: "Email", accessor: "email" },
       {
         Header: "Role",
-        accessor: "role", // this is the role ID
-        Cell: ({ row }) => categoryMap[row.original.role] || "N/A",
+        accessor: "role_id", // this is the role ID
+        Cell: ({ row }) => categoryMap[row.original.role_id] || "N/A",
       },
       {
         Header: "Status",
