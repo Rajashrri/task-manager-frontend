@@ -16,7 +16,7 @@ const Profile = () => {
   const [employee, setEmployee] = useState({
     name: "",
     email: "",
-    role: "",
+    role_name: "",
     emp_id: "",
   });
 
@@ -49,7 +49,7 @@ const Profile = () => {
           setEmployee({
             name: packageData.name || "",
             email: packageData.email || "",
-            role: packageData.role || "",
+            role_name: packageData.role_name || "",
             emp_id: packageData.emp_id || "",
             profile_pic: packageData.profile_pic || "", // ✅ THIS LINE ADDED
           });
